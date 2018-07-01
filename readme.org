@@ -1,0 +1,76 @@
+#+TITLE: Overscan correction with xrandr
+
+* Overscan
+Old and cheap TVs have no way to adjust the overscan. 
+When connected to the computer, it will be as if the TV is slightly zoomed in on the display, 
+leaving around 5% of the display off the screen.
+
+** Example
+    As far as I know, the actual size of the overscan varies by TV. I measured using gimp.
+   #+NAME: fig:screen
+      [[./720p.png]]
+
+*** reproduce
+   1. open gimp with new image set to resolution (e.g. 1280x720)
+   2. fullscreen (F11), toggle tools (TAB), menubar, status, etc in view
+   3. draw selection over visible part of the screen and fill
+   4. zoom out and measure
+   #+BEGIN_SRC bash
+  xcf2png 1280p.xcf | convert - -scale 25% -bordercolor black -border 1x1 1280p_border.png
+  #+END_SRC
+     
+
+* Correction
+
+Ultimately, we want what is red in the above figure to cover the full image.
+That is, we want to map the bounds of what is displayed to the reported resolution.
+~xrandr~ can handle this with a transform matrix.
+
+** The matrix
+  The transform calculation is
+\begin{equation}
+\begin{bmatrix} x_{out} \\ y_{out} \\ z \end{bmatrix}
+=
+\begin{bmatrix}
+  a & b & c \\
+  d & e & f \\
+  0 & 0 & 1
+ \end{bmatrix}  \times \begin{bmatrix} x_{in} \\ y_{in} \\ z \end{bmatrix} 
+\end{equation}
+
+** This display on this TV screen
+
+  * With an $x$ border of 30 on both sides, we have a final width of $1280-2*30 = 1220$.
+  * Our original width is 1280, or $\frac{1280}{1220} = 1.05$ times greater than the TV's effective width.
+  * In the new space we need to move $30*1.05=31.5$ pixels.
+  * With the $y$ border of 20: $\frac{720}{720-2(20)} = 1.05$ times greater than the TV's effective height.
+  * In the new space, $y$ should be shifted $20*1.05 = 21$
+  * We are not doing any rotation, x and y are independent of one another, so $b=e=0$.
+
+** This matrix
+
+\begin{bmatrix}
+  1.05 & 0 & -32 \\
+  0 & 1.05 & -21 \\
+  0 & 0 & 1
+ \end{bmatrix}
+*** Check
+We can look at 3 values of x.
+ 1. The far right edge is currently $30$, but should be $0$
+ 2. The left edge is $1250$ right now, but we want it to be $1280$
+ 3. Current center is $1220/2 + 30 = 640$, it should stay the same.
+
+
+\begin{equation} \label{x_out}
+\begin{split}
+x_{out} &= a  x_{in} + b y_{in} + c  \\
+        &= a  x_{in} + c  \\
+        &= 1.05  x_{in} -32
+\end{split}
+\end{equation}
+
+\begin{align*}
+$x_{\text{new left}}  &= 1.05(30)   -32 &= -.5 \\
+$x_{\text{new right}} &= 1.05(1250) -32 &= 1280.5 \\
+$x_{\text{center}}    &= 1.05(640)  -32 &= 640 \\
+\end{align*}
