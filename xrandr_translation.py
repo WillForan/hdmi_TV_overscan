@@ -51,5 +51,11 @@ x = calc_trans(output['w'],pos[0]['x'],pos[1]['x'])
 y = calc_trans(output['h'],pos[0]['y'],pos[1]['y'])
 print(x)
 print(y)
-print("--transform %.02f,0,%d,0,%.02f,%d,0,0,1" % (x['r'], x['t'], y['r'],y['t']))
+transform = "--transform %.02f,0,%d,0,%.02f,%d,0,0,1" % (x['r'], x['t'], y['r'],y['t'])
+
+print(("xrandr --output %(m)s" +
+      " --mode %(w)dx%(h)d " +
+      transform + 
+      " --panning %(w)dx%(h)d"+
+      " --pos 0x0" ) % output )
 
