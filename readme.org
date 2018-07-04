@@ -5,7 +5,16 @@ Old and cheap TVs have no way to adjust the overscan.
 When connected to the computer, it will be as if the TV is slightly zoomed in on the display, 
 leaving around 5% of the display off the screen.
 
-** Example
+* Using a python tool
+
+ If the TV with overscan is positioned at the top left (eg ~xrandr --output TV --left-of LVDS-1~),
+ the provided ~xrandr_transform.py~ will prompt for the output name and mouse clicks to get the bounds.
+ The output will be a ~xrandr~ command to correct the overscan.
+ #+BEGIN_SRC bash
+ xrandr --output HDMI-1 --mode 1280x720 --transform 1.05,0,-35,0,1.07,-27,0,0,1 --pos 0x0 
+ #+END_SRC
+
+* Illustration
     As far as I know, the actual size of the overscan varies by TV. I measured using gimp.
    #+NAME: fig:screen
       [[./720p.png]]
@@ -20,7 +29,7 @@ leaving around 5% of the display off the screen.
   #+END_SRC
      
 
-* Correction
+* Correction Calculation
 
 Ultimately, we want what is red in the above figure to cover the full image.
 That is, we want to map the bounds of what is displayed to the reported resolution.
@@ -74,3 +83,9 @@ $x_{\text{new left}}  &= 1.05(30)   -32 &= -.5 \\
 $x_{\text{new right}} &= 1.05(1250) -32 &= 1280.5 \\
 $x_{\text{center}}    &= 1.05(640)  -32 &= 640 \\
 \end{align*}
+
+* Etc
+** Fonts are weird
+#+BEGIN_SRC bash
+xdpyinfo | grep dots
+#+END_SRC
