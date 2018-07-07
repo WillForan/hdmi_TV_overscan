@@ -1,4 +1,5 @@
 #+TITLE: Overscan correction with xrandr
+#+OPTIONS: toc:nil num:nil date:nil 
 
 * Overscan
 Old and cheap TVs have no way to adjust the overscan. 
@@ -11,7 +12,8 @@ leaving around 5% of the display off the screen.
  the provided ~xrandr_transform.py~ will prompt for the output name and mouse clicks to get the bounds.
  The output will be a ~xrandr~ command to correct the overscan.
  #+BEGIN_SRC bash
- xrandr --output HDMI-1 --mode 1280x720 --transform 1.05,0,-35,0,1.07,-27,0,0,1 --pos 0x0 
+ xrandr --output HDMI-1 --mode 1280x720 \
+  --transform 1.05,0,-35,0,1.07,-27,0,0,1 --pos 0x0 
  #+END_SRC
 
 * Illustration
@@ -25,7 +27,8 @@ leaving around 5% of the display off the screen.
    3. draw selection over visible part of the screen and fill
    4. zoom out and measure
    #+BEGIN_SRC bash
-  xcf2png 1280p.xcf | convert - -scale 25% -bordercolor black -border 1x1 1280p_border.png
+  xcf2png 1280p.xcf | 
+   convert - -scale 25% -bordercolor black -border 1x1 1280p_border.png
   #+END_SRC
      
 
@@ -33,7 +36,7 @@ leaving around 5% of the display off the screen.
 
 Ultimately, we want what is red in the above figure to cover the full image.
 That is, we want to map the bounds of what is displayed to the reported resolution.
-~xrandr~ can handle this with a transform matrix.
+~xrandr~ can handle this with a transform matrix. (See pdf for rendered latex.)
 
 ** The matrix
   The transform calculation is
